@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./assets/jquery/jquery-3.5.1.min.js"></script>
+    <script src="./assets/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./assets/css/all.css">
+    <link rel="stylesheet" href="./assets/bootstrap/css/twitter-bootstrap.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.6/css/responsive.bootstrap4.min.css">
+    <script>
+        var final_data = []
+        var final_data_exclude_label = []
+        var parsed_data = []
+        var label = ""
+    </script>
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.6/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.6/js/responsive.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script src="./assets/js/classification.js" defer></script>
+    <title>Data Mining - Classification</title>
+</head>
+
+<body>
+    <div class="position-fixed loading" id="loading">
+        <div class="d-flex justify-content-center align-items-center flex-column h-100">
+            <img src="./assets/images/loading-bars.gif" alt="">
+            <div class="w-100 text-center display-4" id="loading-text">
+                Loading
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/classification.html">Classification</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about-us.html">About Us</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h1 class="display-4">Classification using KNN</h1>
+
+        <!-- STEP 1 -->
+        <div class="card mt-5" id="step-1">
+            <div class="card-body">
+                <h5 class="card-title">Step 1</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Choose File</h6>
+                <form action="" method="POST" enctype="multipart/form-data" id="step-1-form">
+                    <hr>
+                    <input type="hidden" name="step" value="1">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroupFileDataTrain">Train Data</span>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="inputGroupFileTrain"
+                                aria-describedby="inputGroupFileDataTrain" name="train_data" accept=".csv" required>
+                            <label class="custom-file-label" for="inputGroupFileTrain">Choose file</label>
+                        </div>
+                        <script>
+                            document.querySelector('#inputGroupFileTrain').addEventListener('change', function (e) {
+                                var fileName = document.getElementById("inputGroupFileTrain").files[0].name;
+                                var nextSibling = e.target.nextElementSibling
+                                nextSibling.innerText = fileName
+                            })
+                        </script>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroupFileDataTest">Test Data</span>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="inputGroupFileTest"
+                                aria-describedby="inputGroupFileDataTest" name="test_data" required>
+                            <label class="custom-file-label" for="inputGroupFileTest">Choose file</label>
+                        </div>
+                        <script>
+                            document.querySelector('#inputGroupFileTest').addEventListener('change', function (e) {
+                                var fileName = document.getElementById("inputGroupFileTest").files[0].name;
+                                var nextSibling = e.target.nextElementSibling
+                                nextSibling.innerText = fileName
+                            })
+                        </script>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center">
+                        <button type="submit" class="btn btn-outline-secondary">Load Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="card mt-5" id="step-2">
+            <div class="card-body">
+                <h5 class="card-title">Step 2</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Select Attribute</h6>
+                <hr>
+                <h3 class="card-text font-weight-normal mt-4 text-center mb-4">Remove unnecessary data</h3>
+                <div class="d-flex justify-content-center">
+                    <div class="w-100">
+                        <div>
+                            <label for="" class="font-weight-bold text-dark">Uncheck all unnecessary data</label>
+                        </div>
+                        <ul class="form-group" id="mapping-value"></ul>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end align-items-center">
+                    <button class="btn btn-outline-secondary" id="save-attribute-button">Save Attributes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="card mt-5" id="step-3">
+            <div class="card-body">
+                <h5 class="card-title">Step 3</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Select Label</h6>
+                <hr>
+                <div class="d-flex justify-content-center">
+                    <div class="w-100">
+                        <div>
+                            <label for="" class="font-weight-bold text-dark">Choose the label</label>
+                        </div>
+                        <ul class="form-group" id="select-label"></ul>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end align-items-center">
+                    <button class="btn btn-outline-secondary" id="save-label-button">Save Label</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="card mt-5" id="result-chart">
+            <div class="card-body">
+                <h5 class="card-title">Chronic Kidney Disease Classification Result</h5>
+                <hr>
+                <canvas id="bar-chart" width="800" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- DATA SHOWS HERE -->
+        <div class="card mt-5" id="loaded-data">
+            <div class="card-body">
+                <h3 class="card-text font-weight-normal mt-4 text-center">Train Data</h3>
+                <div id="train-data-div">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" id="train-table">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <h3 class="card-text font-weight-normal mt-4 text-center">Test Data</h3>
+                <div id="test-data-div">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" id="test-table">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
