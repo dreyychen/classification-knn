@@ -88,6 +88,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST") {
         $raw_data = $_POST["final_data"];
         $label = $_POST["label"];
         $header = array_keys($data["train"][0]);
+        $k_count = $_POST["k"];
         // distances isinya 
         // train => index train nya
         // test => index test nya
@@ -111,10 +112,12 @@ if($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // take 3 min distance
             // TODO: bikin k nya dilempar dari html
-            $k = 3;
+            if($k_count === "")
+                $k_count = 3;
+            else $k_count = (int)$k_count;
             $labels = [];
             $test_index = $x;
-            for ($i=0; $i < $k; $i++) { 
+            for ($i=0; $i < $k_count; $i++) { 
                 $train_index = $distances[$i]["train"];
                 array_push($labels, $raw_data["train"][$train_index][$label]);
             }
@@ -127,7 +130,10 @@ if($_SERVER["REQUEST_METHOD"] === "POST") {
             // print_r($raw_data["test"][$x]);
         }
 
-        echo json_encode($raw_data);
+        $response = [];
+        $response["data"] = $raw_data;
+        $response["k"] = $k_count;
+        echo json_encode($response);
     }
 
     // CHART
@@ -156,7 +162,7 @@ function calculateDistance($train, $test, $indexoftrain, $indexoftest, $header) 
     foreach ($header as $h) {
         $temp += (pow($test[$indexoftest][$h]-$train[$indexoftrain][$h] , 2));
     }
-    return $temp;
+    return sqrt($temp);
 }
 
 function getUnique($header, $data) {

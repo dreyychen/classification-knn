@@ -39,3 +39,54 @@ ul#mapping-value, ul#select-label {
     column-count: 4;
     column-gap: 20px;
 }
+
+h4.display-4 {
+    font-size: 1.5rem;
+}
+
+.card {
+    overflow: hidden;
+}
+
+.about-image{
+    height: calc(4*3.5rem);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.about-us > .card, .about-image {
+    width: calc(3*3.5rem);
+}
+
+.about-us .card-title {
+    height: 50px
+}
+
+.about-us .card-text, .about-us .card-title {
+    text-align: center;
+}
+
+#sukma {
+    background-image: url("../images/about-us/Sukma\ Indah.jpg");
+}
+
+#nadya {
+    background-image: url("../images/about-us/Nadya\ Marcelinda.jpg");
+}
+
+#lidia {
+    background-image: url("../images/about-us/Lidia\ Rik\ Rik\ Kumala.jpg");
+}
+
+#audrey {
+    background-image: url("../images/about-us/Audrey\ Chen.jpg");
+}
+
+#eve {
+    background-image: url("../images/about-us/Evelyn\ Manuel.jpg");
+}
+
+#tisya {
+    background-image: url("../images/about-us/Pritisia\ Dwi\ Prilliyan.jpg");
+}

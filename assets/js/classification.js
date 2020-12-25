@@ -114,6 +114,7 @@ function step3() {
     })
 
     $('#save-label-button').click((e) => {
+        const k = $("#k-count").val()
         $("#loading-text").text("Setting Label")
         $("#loading").show()
 
@@ -135,7 +136,7 @@ function step3() {
             },
             success: (response) => {
                 final_data_exclude_label = response;
-                step4();
+                step4(k);
             },
             error: () => {
                 $("#loading").hide()
@@ -146,7 +147,8 @@ function step3() {
     })
 }
 
-function step4() {
+function step4(k) {
+    console.log(k);
     $("#loading-text").text("Parsing Nominal Data to Numeric")
 
     $.ajax({
@@ -157,7 +159,7 @@ function step4() {
         },
         success: (response) => {
             parsed_data = response
-            step5()
+            step5(k)
         },
         error: () => {
             $("#loading").hide()
@@ -167,7 +169,8 @@ function step4() {
     })
 }
 
-function step5() {
+function step5(k) {
+    console.log(k);
     $("#loading-text").text("Calculating Distances")
 
     $.ajax({
@@ -176,11 +179,15 @@ function step5() {
             "request_data": parsed_data,
             "final_data": final_data,
             "label": label,
-            "step": "5"
+            "step": "5",
+            "k" : k
         },
         success: (response) => {
             $("#loading").hide()
-            final_data = response
+            final_data = response["data"]
+            final_k = response["k"]
+
+            $("#result-k").text("K = " + final_k)
             // console.log(response)
 
             // reset table

@@ -16,6 +16,7 @@
         var final_data_exclude_label = []
         var parsed_data = []
         var label = ""
+        var final_k = ""
     </script>
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
@@ -132,8 +133,16 @@
         <div class="card mt-5" id="step-3">
             <div class="card-body">
                 <h5 class="card-title">Step 3</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Select Label</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Determine the K and Select Label</h6>
                 <hr>
+                <div class="d-flex">
+                    <div class="form-group">
+                        <label for="" class="text-dark font-weight-bold">Determine the K</label><br>
+                        <small class="text-muted">Default K = 3</small>
+                        <input type="number" name="k-count" id="k-count" class="form-control" value="3">
+                        <small class="text-danger">K must be an odd number</small>
+                    </div>
+                </div>
                 <div class="d-flex justify-content-center">
                     <div class="w-100">
                         <div>
@@ -152,6 +161,7 @@
         <div class="card mt-5" id="result-chart">
             <div class="card-body">
                 <h5 class="card-title">Chronic Kidney Disease Classification Result</h5>
+                <h6 class="card-subtitle mb-2 text-muted" id="result-k"></h6>
                 <hr>
                 <canvas id="bar-chart" width="800" height="250"></canvas>
             </div>
