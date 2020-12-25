@@ -226,7 +226,9 @@ function showChart() {
                     datasets: [
                         {
                             label: "Predicted People",
-                            backgroundColor: ["#ff5252", "#448aff"],
+                            backgroundColor: ["rgba(255, 99, 99, 0.2)", "rgba(54, 162, 235, 0.2)"],
+                            borderColor: ["rgba(255, 99, 99)", "rgba(54, 162, 235)"],
+                            borderWidth: 1,
                             data: [response[0], response[1]]
                         }
                     ]

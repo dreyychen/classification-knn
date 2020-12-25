@@ -84,11 +84,13 @@ if($_SERVER["REQUEST_METHOD"] === "POST") {
     // STEP 5
     else if ($_POST["step"] === "5") {
         
-        $data = $_POST["request_data"];
+        $olddata = $_POST["request_data"];
         $raw_data = $_POST["final_data"];
         $label = $_POST["label"];
-        $header = array_keys($data["train"][0]);
+        $header = array_keys($olddata["train"][0]);
         $k_count = $_POST["k"];
+
+        $data = normalize($olddata, $header);
         // distances isinya 
         // train => index train nya
         // test => index test nya
@@ -155,6 +157,44 @@ if($_SERVER["REQUEST_METHOD"] === "POST") {
 
         echo json_encode($response);
     }
+}
+
+function normalize($data, $header) {
+    $newdata = [
+        "train" => [],
+        "test" => [],
+    ];
+
+    foreach($header as $column) {
+        $tempTr = [];
+        foreach($data["train"] as $train) {
+            array_push($tempTr, $train[$column]);
+        }
+
+        $minTempTr = min($tempTr);
+        $maxTempTr = max($tempTr);
+        
+        foreach($data["train"] as $i => $train) {
+            $vTr = $train[$column];
+            $newdata["train"][$i][$column] = ($vTr - $minTempTr) / ($maxTempTr - $minTempTr);
+        }
+
+
+        $tempTs = [];
+        foreach($data["test"] as $test) {
+            array_push($tempTs, $test[$column]);
+        }
+
+        $mintempTs = min($tempTs);
+        $maxtempTs = max($tempTs);
+        
+        foreach($data["test"] as $i => $test) {
+            $vTs = $test[$column];
+            $newdata["test"][$i][$column] = ($vTs - $mintempTs) / ($maxtempTs - $mintempTs);
+        }
+    }
+
+    return $newdata;
 }
 
 function calculateDistance($train, $test, $indexoftrain, $indexoftest, $header) {
