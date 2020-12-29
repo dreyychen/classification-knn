@@ -16,11 +16,28 @@
     <script src="https://cdn.datatables.net/responsive/2.2.6/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.6/js/responsive.bootstrap4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-    <script src="./assets/js/classification.js" defer></script>
-    <title>Data Mining - Classification</title>
+    <script src="./assets/js/outlier.js" defer></script>
+    <script>
+        var raw_data = []
+        var final_data = []
+        var attribute_count = 0
+        var dt_range_max = 0
+        var distance_threshold = 0
+        var proportion = 0
+    </script>
+    <title>Data Mining - Outlier</title>
 </head>
 
 <body>
+    <div class="position-fixed loading" id="loading">
+        <div class="d-flex justify-content-center align-items-center flex-column h-100">
+            <img src="./assets/images/loading-bars.gif" alt="">
+            <div class="w-100 text-center display-4" id="loading-text">
+                Loading
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Home</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -46,7 +63,113 @@
     <div class="container py-5">
         <h1 class="display-4">Outlier Detection</h1>
 
-        
+        <!-- STEP 1 -->
+        <div class="card mt-5" id="step-1">
+            <div class="card-body">
+                <h5 class="card-title">Step 1</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Choose File</h6>
+                <form action="" method="POST" enctype="multipart/form-data" id="step-1-form">
+                    <hr>
+                    <input type="hidden" name="step" value="1">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroupFileData">File Data</span>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="inputGroupFile"
+                                aria-describedby="inputGroupFileData" name="outlier-data" accept=".csv" required>
+                            <label class="custom-file-label" for="inputGroupFile">Choose file</label>
+                        </div>
+                        <script>
+                            document.querySelector('#inputGroupFile').addEventListener('change', function (e) {
+                                var fileName = document.getElementById("inputGroupFile").files[0].name;
+                                var nextSibling = e.target.nextElementSibling
+                                nextSibling.innerText = fileName
+                            })
+                        </script>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center">
+                        <button type="submit" class="btn btn-outline-secondary">Load Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="card mt-5" id="step-2">
+            <div class="card-body">
+                <h5 class="card-title">Step 2</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Select Attribute</h6>
+                <hr>
+                <h3 class="card-text font-weight-normal mt-4 text-center mb-4">Remove unnecessary data</h3>
+                <div class="d-flex justify-content-center">
+                    <div class="w-100">
+                        <div>
+                            <label for="" class="font-weight-bold text-dark">Uncheck all unnecessary data</label>
+                        </div>
+                        <ul class="form-group" id="mapping-value"></ul>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end align-items-center">
+                    <button class="btn btn-outline-secondary" id="save-attribute-button">Save Attributes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="card mt-5" id="step-3">
+            <div class="card-body">
+                <h5 class="card-title">Step 3</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Determine the distance threshold and proportion</h6>
+                <hr>
+                <div class="d-flex">
+                    <div class="form-group">
+                        <label for="" class="text-dark font-weight-bold">Determine the distance threshold</label><br>
+                        <small class="text-muted" id="default-dt">Default distance threshold = 4</small>
+                        <input type="number" name="d-threshold" id="d-threshold" class="form-control" value="4">
+                        <small class="text-muted" id="dt-range">Distance threshold must be between 0 and ?</small>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="form-group">
+                        <label for="" class="text-dark font-weight-bold">Determine the proportion</label><br>
+                        <small class="text-muted">Default proportion = 0.2</small>
+                        <input type="number" name="proportion" id="proportion" class="form-control" value="0.2">
+                        <small class="text-muted">Proportion must be between 0 and 1</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end align-items-center">
+                    <button class="btn btn-outline-secondary" id="save-d-p-button">Save Distance Threshold and Proportion</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="card mt-5" id="result-chart">
+            <div class="card-body">
+                <h5 class="card-title">Chronic Kidney Disease Outlier Detection Result</h5>
+                <h6 class="card-subtitle mb-2 text-muted" id="result-dt"></h6>
+                <h6 class="card-subtitle mb-2 text-muted" id="result-pr"></h6>
+                <hr>
+                <canvas id="bar-chart" width="800" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- DATA SHOWS HERE -->
+        <div class="card mt-5" id="loaded-data">
+            <div class="card-body">
+                <h3 class="card-text font-weight-normal mt-4 text-center">Outlier Data</h3>
+                <div id="outlier-data-div">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" id="outlier-table">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 
